@@ -9,7 +9,7 @@ on:
 env:
   DOCKER_IMAGE: agenticdev
   SERVER_HOST: 147.182.236.230
-  SERVER_USER: root  # Update this with actual username when known
+  SERVER_USER: justin
 
 jobs:
   test:
@@ -65,25 +65,35 @@ jobs:
     - name: Deploy to server
       run: |
         ssh $SERVER_USER@$SERVER_HOST << 'ENDSSH'
-          # Load the new image
-          docker load < /tmp/image.tar.gz
+          # Load the new image (using sudo for Docker commands)
+          sudo docker load < /tmp/image.tar.gz
           
           # Stop the old container
-          docker stop agenticdev-app || true
-          docker rm agenticdev-app || true
+          sudo docker stop agenticdev-app || true
+          sudo docker rm agenticdev-app || true
+          
+          # Create data directory if it doesn't exist
+          sudo mkdir -p /data
+          sudo chown justin:justin /data
+          
+          # Copy env file to justin's home if needed
+          if [ -f /root/.env ] && [ ! -f /home/justin/.env ]; then
+            sudo cp /root/.env /home/justin/.env
+            sudo chown justin:justin /home/justin/.env
+          fi
           
           # Start the new container
-          docker run -d \
+          sudo docker run -d \
             --name agenticdev-app \
             --restart unless-stopped \
             -p 80:80 \
             -v /data:/data \
-            --env-file /root/.env \
+            --env-file /home/justin/.env \
             agenticdev:latest
           
           # Clean up
           rm /tmp/image.tar.gz
-          docker image prune -f
+          sudo docker image prune -f
           
           # Health check
           sleep 5
