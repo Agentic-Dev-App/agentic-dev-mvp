@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Recipe Extractor - Just the Recipe",
+  "version": "1.0.0",
+  "description": "Extract recipes from any website with one click. No ads, no stories, just the recipe.",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://agenticdev.app/*",
+    "https://*.pinterest.com/*",
+    "https://*.pinimg.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.pinterest.com/*",
+        "https://*.pinterest.ca/*",
+        "https://*.pinterest.co.uk/*",
+        "https://*.allrecipes.com/*",
+        "https://*.foodnetwork.com/*",
+        "https://*.bonappetit.com/*",
+        "https://*.seriouseats.com/*",
+        "https://*.simplyrecipes.com/*",
+        "https://*.budgetbytes.com/*",
+        "https://*.smittenkitchen.com/*",
+        "https://*.minimalistbaker.com/*",
+        "https://*.sallysbakingaddiction.com/*",
+        "https://*.cookieandkate.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

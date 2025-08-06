@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+pydantic
+requests
+trafilatura
+lxml
+lxml_html_clean
+python-dotenv
+aiofiles
+aiosqlite
+PyJWT
+svix
+stripe
+anthropic
+openai
