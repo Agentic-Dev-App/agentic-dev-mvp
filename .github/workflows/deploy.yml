@@ -94,11 +94,9 @@ jobs:
           if [ ! -f /home/justin/.env ]; then
             echo "Warning: /home/justin/.env not found!"
             echo "Creating template env file..."
-            cat > /home/justin/.env << 'EOF'
-ALBY_ACCESS_TOKEN=your_token
-ALBY_WEBHOOK_SECRET=your_secret
-ANTHROPIC_API_KEY=your_key
-EOF
+            echo "ALBY_ACCESS_TOKEN=your_token" > /home/justin/.env
+            echo "ALBY_WEBHOOK_SECRET=your_secret" >> /home/justin/.env
+            echo "ANTHROPIC_API_KEY=your_key" >> /home/justin/.env
           fi
           
           # Start the new container
