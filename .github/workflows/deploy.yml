@@ -67,25 +67,42 @@ jobs:
     - name: Deploy to server
       run: |
         ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $SERVER_USER@$SERVER_HOST << 'ENDSSH'
-          # Load the new image (using sudo for Docker commands)
-          sudo docker load < /tmp/image.tar.gz
+          # Determine if we need sudo for docker
+          if docker ps >/dev/null 2>&1; then
+            DOCKER_CMD="docker"
+          else
+            DOCKER_CMD="sudo docker"
+          fi
+          
+          # Load the new image
+          $DOCKER_CMD load < /tmp/image.tar.gz
           
           # Stop the old container
-          sudo docker stop agenticdev-app || true
-          sudo docker rm agenticdev-app || true
+          $DOCKER_CMD stop agenticdev-app || true
+          $DOCKER_CMD rm agenticdev-app || true
           
-          # Create data directory if it doesn't exist
-          sudo mkdir -p /data
-          sudo chown justin:justin /data
+          # Create data directory if it doesn't exist (may need sudo)
+          if [ ! -d /data ]; then
+            if [ -w /data 2>/dev/null ] || [ -w / 2>/dev/null ]; then
+              mkdir -p /data
+            else
+              echo "Note: /data directory needs to be created with proper permissions"
+            fi
+          fi
           
-          # Copy env file to justin's home if needed
-          if [ -f /root/.env ] && [ ! -f /home/justin/.env ]; then
-            sudo cp /root/.env /home/justin/.env
-            sudo chown justin:justin /home/justin/.env
+          # Check for env file
+          if [ ! -f /home/justin/.env ]; then
+            echo "Warning: /home/justin/.env not found!"
+            echo "Creating template env file..."
+            cat > /home/justin/.env << 'EOF'
+ALBY_ACCESS_TOKEN=your_token
+ALBY_WEBHOOK_SECRET=your_secret
+ANTHROPIC_API_KEY=your_key
+EOF
           fi
           
           # Start the new container
-          sudo docker run -d \
+          $DOCKER_CMD run -d \
             --name agenticdev-app \
             --restart unless-stopped \
             -p 80:80 \
@@ -95,7 +112,7 @@ jobs:
           
           # Clean up
           rm /tmp/image.tar.gz
-          sudo docker image prune -f
+          $DOCKER_CMD image prune -f
           
           # Health check
           sleep 5
